@@ -1,39 +1,46 @@
-import React from 'react'
-import { Box, Typography, Button, Card, CardMedia, CardContent, CardActions, Chip } from '@material-ui/core'
-import LocationOnIcon from '@material-ui/icons/LocationOn'
-import PhoneIcon from '@material-ui/icons/Phone'
-import Rating from '@material-ui/lab/Rating'
+import React from 'react';
+import { Box, Typography, Button, Card, CardMedia, CardContent, CardActions, Chip } from '@material-ui/core';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import PhoneIcon from '@material-ui/icons/Phone';
+import Rating from '@material-ui/lab/Rating';
 
-import useStyles from './styles'
+import useStyles from './styles';
 
-const PlaceDetails = ({place}) => {
+const PlaceDetails = ({ place, selected, refProp }) => {
   const classes = useStyles();
-  return (
-    <Card elevation={5}>
-      <CardMedia 
-        style={{height: 350}}
-        image={place.photo ? place.photo.images.large.url : 'https://www.google.com/url?sa=i&url=https%3A%2F%2F900degreespizza.com%2Fplaceholder-image-6%2F&psig=AOvVaw3VTL4jA2G53FViT3yN438e&ust=1728133726365000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCJDNiPrl9IgDFQAAAAAdAAAAABAO'}
-        title={place.name}
 
+  // Scroll into view if the place is selected
+  React.useEffect(() => {
+    if (selected && refProp?.current) {
+      refProp.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [selected, refProp]);
+
+  return (
+    <Card elevation={5} ref={refProp}>
+      <CardMedia
+        style={{ height: 350 }}
+        image={place.photo ? place.photo.images.large.url : 'https://www.foodserviceandhospitality.com/wp-content/uploads/2016/09/Restaurant-Placeholder-001.jpg'}
+        title={place.name}
       />
       <CardContent>
         <Typography gutterBottom variant="h5">
           {place.name}
         </Typography>
         <Box display="flex" justifyContent="space-between">
-        <Rating value={Number(place.rating)} readOnly />
-        <Typography gutterBottom variant="subtitle1">
+          <Rating value={Number(place.rating)} readOnly />
+          <Typography gutterBottom variant="subtitle1">
             Out of {place.num_reviews} reviews
           </Typography>
         </Box>
         <Box display="flex" justifyContent="space-between">
           <Typography variant="subtitle1">Ranking</Typography>
           <Typography gutterBottom variant="subtitle1">
-              {place.ranking}
+            {place.ranking}
           </Typography>
         </Box>
         {place?.awards?.map((award) => (
-          <Box my={1} display="flex" justifyContent="space-between" alignItems="center">
+          <Box my={1} display="flex" justifyContent="space-between" alignItems="center" key={award.display_name}>
             <img src={award.images.small} alt={award.display_name} />
             <Typography variant="subtitle2" color="textSecondary">
               {award.display_name}
@@ -46,20 +53,14 @@ const PlaceDetails = ({place}) => {
         ))}
 
         {place?.address && (
-          <Typography gutterBottom variant="subtitle2" color="textSecondary" className={classes.subtitle}>  
+          <Typography gutterBottom variant="subtitle2" color="textSecondary" className={classes.subtitle}>
             <LocationOnIcon /> {place.address}
           </Typography>
         )}
         {place?.phone && (
-          <Typography gutterBottom variant="subtitle2" color="textSecondary" className={classes.spacing}>  
+          <Typography gutterBottom variant="subtitle2" color="textSecondary" className={classes.spacing}>
             <PhoneIcon /> {place.phone}
           </Typography>
-        )}
-        
-        {place?.rating && (
-          <Box display="flex" justifyContent="space-between">
-            <Rating name="read-only" value={place?.rating} readOnly />
-          </Box>
         )}
 
         <CardActions>
@@ -70,12 +71,9 @@ const PlaceDetails = ({place}) => {
             Website
           </Button>
         </CardActions>
-        
-        
       </CardContent>
-        
     </Card>
-  )
-}
+  );
+};
 
-export default PlaceDetails
+export default PlaceDetails;
