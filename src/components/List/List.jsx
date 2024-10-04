@@ -3,24 +3,13 @@ import { CircularProgress, Grid, Typography, MenuItem, FormControl, Select, Inpu
 import useStyles from './styles';
 
 import PlaceDetails from '../PlaceDetails/PlaceDetails';
-const List = () => {
+const List = ({places}) => {
   const classes = useStyles();
 
   const [type, setType] = useState('restaurants');
   const [rating, setRating] = useState('');
 
-  const places = [
-    {name: 'Cool Place'},
-    {name: 'Best Beer'},
-    {name: 'Best burger'},
-    {name: 'Cool Place'},
-    {name: 'Best Beer'},
-    {name: 'Best burger'},
-    {name: 'Cool Place'},
-    {name: 'Best Beer'},
-    {name: 'Best burger'},
 
-  ]
   return (
     <div className={classes.container}>
       <Typography variant='h4' className={classes.title}>Places to visit</Typography>
