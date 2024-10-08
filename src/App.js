@@ -3,7 +3,6 @@ import { CssBaseline, Grid } from '@material-ui/core';
 import Header from './components/Header/Header';
 import List from './components/List/List';
 import Map from './components/Map/Map';
-import PlaceDetails from './components/PlaceDetails/PlaceDetails';
 
 import { getPlacesData } from './api';
 
@@ -12,46 +11,49 @@ const App = () => {
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [childClicked, setChildClicked] = useState(null);
 
-    const [coordinates, setCoordinates] = useState({});
+    const [coordinates, setCoordinates] = useState({ lat: -34.397, lng: 150.644 }); // Default coordinates
     const [bounds, setBounds] = useState({});
 
     const [isLoading, setIsLoading] = useState(false);
 
     const [type, setType] = useState('restaurants');
-    const [rating, setRating] = useState('');
+    const [rating, setRating] = useState(0); // Set initial rating to 0
 
     useEffect(() => {
-        navigator.geolocation.getCurrentPosition(({ coords: {latitude, longitude} }) => {
-            setCoordinates({ lat: latitude, lng: longitude })
-        })
-    }, [])
+        navigator.geolocation.getCurrentPosition(({ coords: { latitude, longitude } }) => {
+            setCoordinates({ lat: latitude, lng: longitude });
+        }, () => null); // Handle permission denial gracefully
+    }, []);
 
+    // Filtering the places based on rating
     useEffect(() => {
-        const filteredPlaces = places.filter((place) => Number(place.rating) > rating);
-        setPlaces(filteredPlaces);
-    }, [rating]);
-
-    useEffect(() => {
-        if (bounds.sw && bounds.ne) { // Only make the API call if bounds are defined
-            setIsLoading(true);
-    
-            getPlacesData(type, bounds.sw, bounds.ne)
-            .then((data) => {
-                console.log(data);
-                setPlaces(data);
-                setIsLoading(false);
-                setFilteredPlaces([]);
-            });
+        if (places && places.length > 0) {
+            const filtered = places.filter((place) => Number(place.rating) >= rating); // Change to >= to include exact rating matches
+            setFilteredPlaces(filtered);
+        } else {
+            setFilteredPlaces([]); // Reset filteredPlaces if no places are available
         }
-    }, [type, bounds, coordinates]); // Ensure this effect runs when `bounds` change
+    }, [rating, places]);
+
+    useEffect(() => {
+        if (bounds.sw && bounds.ne) {
+            setIsLoading(true);
+            getPlacesData(type, bounds.sw, bounds.ne)
+                .then((data) => {
+                    setPlaces(data?.filter((place) => place.name && place.num_reviews > 0));
+                    setIsLoading(false);
+                });
+        }
+    }, [type, bounds]);
 
     return (
         <>
             <CssBaseline />
-            <Header setCoordinates={setCoordinates}/>
+            <Header setCoordinates={setCoordinates} />
             <Grid container spacing={3} style={{ width: '100%' }}>
                 <Grid item xs={12} md={4}>
-                    <List places={filteredPlaces.length ? filteredPlaces : places}
+                    <List 
+                        places={filteredPlaces.length ? filteredPlaces : places}
                         childClicked={childClicked}
                         isLoading={isLoading}
                         type={type}
@@ -71,7 +73,7 @@ const App = () => {
                 </Grid>
             </Grid>
         </>
-    )
+    );
 };
 
 export default App;
